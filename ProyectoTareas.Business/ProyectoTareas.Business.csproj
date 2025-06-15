@@ -41,10 +41,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TareaBusiness.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ProyectoTareas.Data\ProyectoTareas.Data.csproj">
+      <Project>{dda128ab-837d-4134-9dab-e2e317b8e0d9}</Project>
+      <Name>ProyectoTareas.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProyectoTareas.Models\ProyectoTareas.Models.csproj">
+      <Project>{b89da260-6bdd-47e7-93e2-7c2012d81843}</Project>
+      <Name>ProyectoTareas.Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProyectoTareas.Repository\ProyectoTareas.Repository.csproj">
       <Project>{e786eb36-b496-4b64-ac6d-69f91c033be0}</Project>
       <Name>ProyectoTareas.Repository</Name>
