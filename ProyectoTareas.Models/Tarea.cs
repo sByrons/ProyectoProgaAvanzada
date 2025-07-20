@@ -25,7 +25,7 @@ namespace ProyectoTareas.Models
 
         [Required(ErrorMessage = "Debe indicar la fecha de ejecucion.")] // valida que no esté vacío
         [Display(Name = "Fecha de ejecución")] // muestra un nombre más amigable en la interfaz
-        public DateTime FechaEjecucion { get; set; } // fecha de ejecución de la tarea
+        public DateTime FechaEjecucion { get; set; } = DateTime.Now; // fecha de ejecución de la tarea
 
         public string Estado { get; set; } = "Pendiente"; // estado de la tarea, por defecto es "Pendiente"
 

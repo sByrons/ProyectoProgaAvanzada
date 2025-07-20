@@ -4,66 +4,82 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h3>Resumen de Tareas</h3>
+<div class="row">
+    <div class="col-md-3">
+        <div class="alert alert-info text-center">
+            Pendientes<br />
+            <strong>@ViewBag.ContadorPendientes</strong>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="alert alert-warning text-center">
+            En Proceso<br />
+            <strong>@ViewBag.ContadorEnProceso</strong>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="alert alert-success text-center">
+            Finalizadas<br />
+            <strong>@ViewBag.ContadorFinalizadas</strong>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="alert alert-danger text-center">
+            Fallidas<br />
+            <strong>@ViewBag.ContadorFallidas</strong>
+        </div>
+    </div>
+</div>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
 </p>
-<table class="table">
+
+<table class="table table-bordered table-striped">
     <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Nombre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UrlArchivo)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Prioridad)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FechaEjecucion)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Estado)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.MensajeLog)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </th>
+        <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+        <th>@Html.DisplayNameFor(model => model.UrlArchivo)</th>
+        <th>@Html.DisplayNameFor(model => model.Prioridad)</th>
+        <th>@Html.DisplayNameFor(model => model.FechaEjecucion)</th>
+        <th>@Html.DisplayNameFor(model => model.Estado)</th>
+        <th>@Html.DisplayNameFor(model => model.MensajeLog)</th>
+        <th>@Html.DisplayNameFor(model => model.FechaCreacion)</th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Nombre)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.UrlArchivo)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Prioridad)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.FechaEjecucion)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Estado)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.MensajeLog)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.FechaCreacion)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        string rowClass = "";
 
+        switch (item.Estado)
+        {
+            case "Pendiente":
+                rowClass = "table-info";
+                break;
+            case "EnProceso":
+                rowClass = "table-warning";
+                break;
+            case "Finalizada":
+                rowClass = "table-success";
+                break;
+            case "Fallida":
+                rowClass = "table-danger";
+                break;
+        }
+
+        <tr class="@rowClass">
+            <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+            <td>@Html.DisplayFor(modelItem => item.UrlArchivo)</td>
+            <td>@Html.DisplayFor(modelItem => item.Prioridad)</td>
+            <td>@Html.DisplayFor(modelItem => item.FechaEjecucion)</td>
+            <td>@Html.DisplayFor(modelItem => item.Estado)</td>
+            <td>@Html.DisplayFor(modelItem => item.MensajeLog)</td>
+            <td>@Html.DisplayFor(modelItem => item.FechaCreacion)</td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-warning btn-sm" }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-sm", onclick = "return confirm('Seguro de eliminar esta tarea?');" })
+            </td>
+        </tr>
+    }
 </table>

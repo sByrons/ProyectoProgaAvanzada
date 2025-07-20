@@ -12,11 +12,13 @@ namespace ProyectoTareas.Business
     public class TareaBusiness
     {
         private readonly RepositoryTarea repositoryTarea;
+        
 
         public TareaBusiness()
         {
             var context = new AppDbContext();
             repositoryTarea = new RepositoryTarea(context);
+            
         }
 
         public List<Tarea> ObtenerTodas()
@@ -46,5 +48,6 @@ namespace ProyectoTareas.Business
             repositoryTarea.Delete(id);
             repositoryTarea.Save();
         }
+       
     }
 }
