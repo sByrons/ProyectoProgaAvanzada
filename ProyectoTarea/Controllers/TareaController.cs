@@ -10,15 +10,14 @@ namespace ProyectoTareas.Mvc.Controllers
     public class TareaController : Controller
     {
         private readonly TareaBusiness tareaBusiness = new TareaBusiness();
-        private readonly TareaWorker tareaWorker = new TareaWorker();
+        private static TareaWorker tareaWorker = new TareaWorker();
 
-        private static TareaWorker _worker = new TareaWorker();
 
         public ActionResult IniciarWorker()
         {
-            if (!_worker.IsRunning)
+            if (!tareaWorker.IsRunning)
             {
-                _worker.Start();
+                tareaWorker.Start();
                 TempData["MensajeWorker"] = "Worker iniciado correctamente.";
             }
             else

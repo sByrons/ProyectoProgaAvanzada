@@ -49,7 +49,7 @@ namespace ProyectoTareas.Business
 
         public void ActualizarTarea(Tarea tarea)
         {
-            repositoryTarea.Update(tarea);
+            repositoryTarea.UpdateSinTrackeo(tarea);    
             repositoryTarea.Save();
         }
 

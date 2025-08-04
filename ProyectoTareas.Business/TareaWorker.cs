@@ -34,11 +34,9 @@ namespace ProyectoTareas.Business
                 _colaTareas.Add(tarea);
             }
 
-            // Despierta al Worker si está esperando
+            // Despierta al Worker (si estaba dormido)
             _despertarWorker.Set();
         }
-
-
 
 
         public void Start()
