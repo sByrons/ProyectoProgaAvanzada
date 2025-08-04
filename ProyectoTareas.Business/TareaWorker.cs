@@ -1,100 +1,153 @@
-﻿using ProyectoTareas.Data;
-using ProyectoTareas.Models;
-using ProyectoTareas.Repository;
+﻿using ProyectoTareas.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProyectoTareas.Business
 {
     public class TareaWorker
     {
+        private readonly List<Tarea> _colaTareas = new List<Tarea>();
+        private readonly AutoResetEvent _despertarWorker = new AutoResetEvent(false);
+
+        private readonly object _lock = new object();
         private readonly TareaBusiness tareaBusiness;
         private bool isRunning;
 
-
+        public bool IsRunning
+        {
+            get { return isRunning; }
+        }
         public TareaWorker()
         {
             tareaBusiness = new TareaBusiness();
             isRunning = false;
-            var context = new AppDbContext();
         }
+
+        public void EncolarTarea(Tarea tarea)
+        {
+            lock (_lock)
+            {
+                _colaTareas.Add(tarea);
+            }
+
+            // Despierta al Worker si está esperando
+            _despertarWorker.Set();
+        }
+
+
+
 
         public void Start()
         {
+            if (isRunning)
+                return;
+
             isRunning = true;
+
+            // Cargar tareas pendientes de la BD al iniciar
+            var tareasPendientes = tareaBusiness.ObtenerTodas()
+                                    .Where(t => t.Estado == "Pendiente")
+                                    .ToList();
+
+            lock (_lock)
+            {
+                foreach (var tarea in tareasPendientes)
+                {
+                    _colaTareas.Add(tarea);
+                }
+            }
 
             new Thread(() =>
             {
                 while (isRunning)
                 {
-                    try
+                    Tarea tareaAProcesar = null;
+
+                    lock (_lock)
                     {
-                        ProcesarTareas();
-                        Thread.Sleep(5000); // Esperar 5 segundos 
+                        if (_colaTareas.Any())
+                        {
+                            tareaAProcesar = _colaTareas
+                                .OrderByDescending(t => ObtenerValorPrioridad(t.Prioridad))
+                                .ThenBy(t => t.FechaEjecucion)
+                                .First();
+                        }
                     }
 
-                    catch (Exception ex)
+                    if (tareaAProcesar != null)
                     {
-                        Console.WriteLine($"Error al procesar tareas: {ex.Message}");
+                        ProcesarTarea(tareaAProcesar);
+
+                        // Después de procesar, eliminas la tarea de la cola
+                        lock (_lock)
+                        {
+                            _colaTareas.Remove(tareaAProcesar);
+                        }
+                    }
+                    else
+                    {
+                        // Si no hay tareas, espera hasta que llegue una nueva
+                        _despertarWorker.WaitOne(Timeout.Infinite);
                     }
                 }
             }).Start();
-
         }
+
         public void Stop()
         {
             isRunning = false;
         }
 
-        public void ProcesarTareas()
+        private void ProcesarTarea(Tarea tarea)
         {
-            var tareasPendientes = tareaBusiness.ObtenerTodas()
-                .Where(t => t.Estado == "Pendiente")
-                .OrderByDescending(t => t.Prioridad)
-                .ThenBy(t => t.FechaEjecucion)
-                .ToList();
-
-            foreach (var tarea in tareasPendientes)
+            try
             {
-                tarea.Estado = "En Proceso";
+                tarea.Estado = "EnProceso";
                 tareaBusiness.ActualizarTarea(tarea);
 
-                try
+                using (var client = new WebClient())
                 {
-                    using (var client = new WebClient())
+                    string nombreArchivo = System.IO.Path.GetFileName(new Uri(tarea.UrlArchivo).AbsolutePath);
+                    string rutaCarpeta = @"C:\Descargas\";
+
+                    if (!System.IO.Directory.Exists(rutaCarpeta))
                     {
-                        string nombreArchivo = System.IO.Path.GetFileName(new Uri(tarea.UrlArchivo).AbsolutePath);
-                        string rutaCarpeta = @"C:\Descargas\";
-
-                        if (!System.IO.Directory.Exists(rutaCarpeta))
-                        {
-                            System.IO.Directory.CreateDirectory(rutaCarpeta);
-                        }
-
-                        string ruta = rutaCarpeta + nombreArchivo;
-
-                        client.DownloadFile(tarea.UrlArchivo, ruta);
+                        System.IO.Directory.CreateDirectory(rutaCarpeta);
                     }
 
-                    tarea.Estado = "Finalizada";
-                    tarea.MensajeLog = "Tarea Completada.";
-                }
-                catch (Exception ex)
-                {
-                    tarea.Estado = "Fallida";
-                    tarea.MensajeLog = $"Error: {ex.Message}";
+                    string ruta = rutaCarpeta + nombreArchivo;
+                    client.DownloadFile(tarea.UrlArchivo, ruta);
                 }
 
-                // Actualiza el estado Finalizada o Fallida
-                tareaBusiness.ActualizarTarea(tarea);
+                Thread.Sleep(20000);
 
+                tarea.Estado = "Finalizada";
+                tarea.MensajeLog = "Descarga exitosa.";
+            }
+            catch (Exception ex)
+            {
+                tarea.Estado = "Fallida";
+                tarea.MensajeLog = $"Error: {ex.Message}";
+            }
+
+            tareaBusiness.ActualizarTarea(tarea);
+        }
+
+        private int ObtenerValorPrioridad(string prioridad)
+        {
+            switch (prioridad)
+            {
+                case "Alta": return 3;
+                case "Media": return 2;
+                case "Baja": return 1;
+                default: return 0;
             }
         }
+
     }
 }
 

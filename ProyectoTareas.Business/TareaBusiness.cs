@@ -26,6 +26,16 @@ namespace ProyectoTareas.Business
             return repositoryTarea.GetAll().ToList();
         }
 
+        public List<Tarea> ObtenerTodasOrdenadas()
+        {
+            var tareas = ObtenerTodas();
+
+            return tareas.OrderByDescending(t => ObtenerValorPrioridad(t.Prioridad))
+                         .ThenBy(t => t.FechaEjecucion)
+                         .ToList();
+        }
+
+
         public Tarea ObtenerPorId(int id)
         {
             return repositoryTarea.GetById(id);
@@ -48,6 +58,21 @@ namespace ProyectoTareas.Business
             repositoryTarea.Delete(id);
             repositoryTarea.Save();
         }
-       
+        private int ObtenerValorPrioridad(string prioridad)
+        {
+            switch (prioridad)
+            {
+                case "Alta":
+                    return 3;
+                case "Media":
+                    return 2;
+                case "Baja":
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+
+
     }
 }

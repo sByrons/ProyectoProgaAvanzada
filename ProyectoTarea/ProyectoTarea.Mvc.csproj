@@ -187,6 +187,8 @@
     <Content Include="Views\Tarea\Index.cshtml" />
     <Content Include="Views\Tarea\Create.cshtml" />
     <Content Include="Views\Tarea\Edit.cshtml" />
+    <Content Include="Views\Tarea\_TablaTareas.cshtml" />
+    <Content Include="Views\Tarea\_ResumenTareas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

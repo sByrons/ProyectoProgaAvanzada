@@ -1,0 +1,55 @@
+﻿@model IEnumerable<ProyectoTareas.Models.Tarea>
+
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>Nombre</th>
+        <th>URL</th>
+        <th>Prioridad</th>
+        <th>Fecha Ejecución</th>
+        <th>Estado</th>
+        <th>Mensaje Log</th>
+        <th>Fecha Creación</th>
+        <th>Acciones</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        string rowClass = "";
+
+        switch (item.Estado)
+        {
+            case "Pendiente":
+                rowClass = "table-info";
+                break;
+            case "EnProceso":
+                rowClass = "table-warning";
+                break;
+            case "Finalizada":
+                rowClass = "table-success";
+                break;
+            case "Fallida":
+                rowClass = "table-danger";
+                break;
+        }
+
+        <tr class="@rowClass">
+            <td>@item.Nombre</td>
+            <td>@item.UrlArchivo</td>
+            <td>@item.Prioridad</td>
+            <td>@item.FechaEjecucion</td>
+            <td>@item.Estado</td>
+            <td>@item.MensajeLog</td>
+            <td>@item.FechaCreacion</td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-warning btn-sm" }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-sm", onclick = "return confirm('Seguro de eliminar esta tarea?');" })
+                @if (item.Estado == "Fallida")
+                {
+                    @: |
+                    @Html.ActionLink("Reintentar", "Reintentar", new { id = item.Id }, new { @class = "btn btn-primary btn-sm" })
+                }
+            </td>
+        </tr>
+    }
+</table>
+
