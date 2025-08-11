@@ -126,7 +126,6 @@ namespace ProyectoTareas.Mvc.Controllers
             ViewBag.ContadorFallidas = tareas.Count(t => t.Estado == "Fallida");
             return PartialView("_ResumenTareas");
         }
-
     }
 }
 

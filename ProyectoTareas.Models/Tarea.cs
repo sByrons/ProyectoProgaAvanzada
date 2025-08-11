@@ -36,5 +36,6 @@ namespace ProyectoTareas.Models
         public DateTime FechaCreacion { get; set; } = DateTime.Now; // fecha de creación de la tarea, por defecto es la fecha actual
 
 
+
     }
 }

@@ -1,39 +1,143 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@* Views/Shared/_Layout.cshtml *@
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Proyecto Tareas</title>
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+
+    <style>
+        /* Paleta clara por defecto */
+        :root {
+            --bg: #ffffff;
+            --fg: #212529;
+            --muted: #6c757d;
+            --card: #ffffff;
+            --border: #dee2e6;
+        }
+        /* Paleta oscura */
+        body.dark {
+            --bg: #0f1115;
+            --fg: #e9ecef;
+            --muted: #adb5bd;
+            --card: #151821;
+            --border: #2b3036;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+        }
+
+        .card, .table, .alert, .form-control, .form-select {
+            background: var(--card);
+            color: var(--fg);
+        }
+
+            .border, .table, .table > :not(caption) > * > * {
+                border-color: var(--border) !important;
+            }
+
+        footer {
+            padding: 1rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+            text-align: center;
+            font-size: .9rem;
+            color: var(--muted);
+        }
+        /* Botón toggle visual simple */
+        .theme-toggle {
+            border: 1px solid var(--border);
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
+    <nav id="mainNav" class="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm">
         <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            @Html.ActionLink("Proyecto Tareas", "Index", "Tarea", null, new { @class = "navbar-brand fw-bold" })
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegación">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">@Html.ActionLink("Dashboard", "Index", "Tarea", null, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Crear Tarea", "Create", "Tarea", null, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Iniciar Worker", "IniciarWorker", "Tarea", null, new { @class = "nav-link" })</li>
+                    <li class="nav-item ms-lg-3">
+                        <button id="btnTheme" type="button" class="btn btn-sm theme-toggle">
+                            🌙 Modo oscuro
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
-    <div class="container body-content">
+
+    <main class="container mt-4">
+        @if (TempData["MensajeWorker"] != null)
+        {
+            <div class="alert alert-info">@TempData["MensajeWorker"]</div>
+        }
+
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+    </main>
+
+    <footer>
+        &copy; @DateTime.Now.Year · Proyecto Tareas SC-601
+    </footer>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
+
+    <script>
+        (function () {
+            const nav = document.getElementById('mainNav');
+            const btn = document.getElementById('btnTheme');
+
+            // 1) Detectar preferencia guardada o del SO en primer uso
+            const saved = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const startDark = saved ? (saved === 'dark') : prefersDark;
+
+            if (startDark) enableDark(); else enableLight();
+
+            // 2) Toggle al hacer clic
+            btn.addEventListener('click', function () {
+                if (document.body.classList.contains('dark')) {
+                    enableLight();
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    enableDark();
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+
+            function enableDark() {
+                document.body.classList.add('dark');
+                // Cambiar navbar a variante oscura de Bootstrap 5
+                nav.classList.remove('navbar-light', 'bg-light');
+                nav.classList.add('navbar-dark', 'bg-dark');
+                btn.textContent = '☀️ Modo claro';
+            }
+
+            function enableLight() {
+                document.body.classList.remove('dark');
+                nav.classList.remove('navbar-dark', 'bg-dark');
+                nav.classList.add('navbar-light', 'bg-light');
+                btn.textContent = '🌙 Modo oscuro';
+            }
+        })();
+    </script>
 </body>
 </html>
+
+
+
